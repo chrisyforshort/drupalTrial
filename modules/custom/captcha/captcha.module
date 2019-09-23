@@ -25,6 +25,7 @@ function generate_nums () {
 
 generate_nums();
 
+```Highlight
 /**
 * Implements captcha_form_contact_site_form_alter() to create captcha array and validation. 
 */
@@ -56,3 +57,4 @@ function captcha_form_contact_site_form_submit($form, &$form_state) {
     unset($_SESSION['math']);  
     generate_nums();
 }
+```
