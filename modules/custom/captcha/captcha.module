@@ -1,0 +1,58 @@
+<?php
+/**
+* @file
+* Will add a simple math captcha to the contact form.
+*/
+
+/**
+* Implements captcha_form_alter() to show each form's identifier.
+function captcha_form_alter(&$form, &$form_state, $form_id) {
+            debug($form, $form_id, TRUE); 
+}
+*/
+
+/**
+* Implements generate_num() to generate the session's random num equation for form validation.
+*/
+function generate_nums () {
+    if (!isset($_SESSION['captchaTotal'])) {
+      $_SESSION['num1'] = rand(1,9);
+      $_SESSION['num2']= rand(1,9);
+      $_SESSION['captchaTotal'] = $_SESSION['num1'] + $_SESSION['num2'];
+      $_SESSION['math'] = $_SESSION['num1'].' + '.$_SESSION['num2']." ?";  
+    }
+  }
+
+generate_nums();
+
+/**
+* Implements captcha_form_contact_site_form_alter() to create captcha array and validation. 
+*/
+function captcha_form_contact_site_form_alter(&$form, &$form_state, $form_id) {
+  $form['captcha']['#type'] = 'textfield';
+  $form['captcha']['#title'] = 'Confirm you are a human, what is '.$_SESSION['math'];
+  $form['captcha']['#maxlength'] = '2';
+  $form['captcha']['#required'] = '1';
+  $form['#validate'][] = 'captcha_form_contact_site_form_validate';
+  $form['#submit'][] = 'captcha_form_contact_site_form_submit';
+}
+
+/**
+* Implements captcha_form_contact_site_validate() for validation logic. 
+*/
+function captcha_form_contact_site_form_validate($form, &$form_state) {
+  if (($form_state['values']['captcha']) != ($_SESSION['captchaTotal'])) {
+    form_set_error('captcha', t('You must do the math correctly.'));
+  }
+}
+
+/**
+* Implements captcha_form_contact_site_submit() to generate new captcha question. 
+*/
+function captcha_form_contact_site_form_submit($form, &$form_state) {
+    unset($_SESSION['captchaTotal']);
+    unset($_SESSION['num1']);
+    unset($_SESSION['num2']);
+    unset($_SESSION['math']);  
+    generate_nums();
+}
